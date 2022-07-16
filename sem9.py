@@ -4,8 +4,8 @@
 import random
 
 
-moves = {'1': '💎',
-    '1': '💎',
+moves = {'0': 'Автоход',
+         '1': '💎',
          '2': '✂️',
          '3': '📜',
          'q': '🚪'}
@@ -28,6 +28,8 @@ while True:
     if moveGamer in moves:
         if moveGamer == 'q':
             break
+        if moveGamer == '0':
+            moveGamer = str(random.randint(1, 3))
         moveBot = str(random.randint(1, 3))
         print(
             f'Ваш ход - {moves[moveGamer]}, ход компьютера - {moves[moveBot]}')
