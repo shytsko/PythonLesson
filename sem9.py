@@ -36,7 +36,7 @@ while True:
             scoreGamer += 0.5
             scoreBot += 0.5
         elif (moveGamer, moveBot) in winCombination:
-            print('Игрок выиграл!')
+            print('Вы выиграли!')
             scoreGamer += 1.0
         else:
             print('Компьютер выиграл!')
