@@ -7,6 +7,15 @@
 def Fibbonacci(n):
     result = []
     
-    for i in range(n):
+    for i in range(n+1):
         if i == 0:
-            
+            result.append(0)
+        elif i==1:
+            result.append(1)
+            result.insert(0, 1)
+        else:
+            result.append(result[-1] + result[-2])
+            result.insert(0, result[1] - result[0])
+    return result
+
+print(Fibbonacci(8))
