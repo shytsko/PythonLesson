@@ -1,42 +1,33 @@
 # 41. Создайте программу для игры в "Крестики-нолики".
 
 from random import randint
-import re
 
+board = [0, 0, 0,
+         0, 0, 0,
+         0, 0, 0]
 
-board = [['-', '-', '-'], ['-', '-', '-'], ['-', '-', '-']]
-
-
-def printBoard(brd):
-    print(" ".join(brd[0]))
-    print(" ".join(brd[1]))
-    print(" ".join(brd[2]))
-
+symbols = {0: "-", 1: "X", -1: "O"}
 
 def CheckBoard(brd):
-    if ((brd[0][0] == "х" and brd[0][1] == "х" and brd[0][2] == "х") or
-        (brd[1][0] == "х" and brd[1][1] == "х" and brd[1][2] == "х") or
-        (brd[2][0] == "х" and brd[2][1] == "х" and brd[2][2] == "х") or
-        (brd[0][0] == "х" and brd[1][0] == "х" and brd[2][0] == "х") or
-        (brd[0][1] == "х" and brd[1][1] == "х" and brd[2][1] == "х") or
-        (brd[0][2] == "х" and brd[1][2] == "х" and brd[2][2] == "х") or
-        (brd[0][0] == "х" and brd[1][1] == "х" and brd[2][2] == "х") or
-            (brd[0][2] == "х" and brd[1][1] == "х" and brd[2][0] == "х")):
+    winCombinationX = (1, 1, 1)
+    winCombinationO = (-1, -1, -1)
+    combinations = tuple(map(tuple, [brd[0:3], brd[3:6], brd[6:9],
+                                    brd[0:9:3], brd[1:9:3], brd[2:9:3],
+                                    brd[0:9:4], brd[-3:-8:-2]]))
+    if winCombinationX in combinations:
         return 1
-    elif ((brd[0][0] == "o" and brd[0][1] == "o" and brd[0][2] == "o") or
-          (brd[1][0] == "o" and brd[1][1] == "o" and brd[1][2] == "o") or
-          (brd[2][0] == "o" and brd[2][1] == "o" and brd[2][2] == "o") or
-          (brd[0][0] == "o" and brd[1][0] == "o" and brd[2][0] == "o") or
-          (brd[0][1] == "o" and brd[1][1] == "o" and brd[2][1] == "o") or
-          (brd[0][2] == "o" and brd[1][2] == "o" and brd[2][2] == "o") or
-          (brd[0][0] == "o" and brd[1][1] == "o" and brd[2][2] == "o") or
-          (brd[0][2] == "o" and brd[1][1] == "o" and brd[2][0] == "o")):
-        return 2
-
-    if '-' in set(brd[0]) | set(brd[1]) | set(brd[2]):
+    elif winCombinationO in combinations:
         return -1
+    elif 0 in brd:
+        return 0
+    else:
+        return -2
 
-    return 0
+
+def PrintBoard(brd):
+    print(" ".join(map(lambda i: symbols[i], brd[0:3])))
+    print(" ".join(map(lambda i: symbols[i], brd[3:6])))
+    print(" ".join(map(lambda i: symbols[i], brd[6:9])))
 
 
 def GetMove(brd):
@@ -44,37 +35,38 @@ def GetMove(brd):
         try:
             m = input("Сделайте ход (строка-столбец): ")
             i, j = list(map(int, m.split("-")))
-            if brd[i][j] != '-':
+            move = (i-1)*3 + (j-1)
+            if brd[move] != 0:
                 raise
         except:
             print("Неверный ввод")
         else:
-            return (i, j)
+            return move
 
 
 whoseMove = randint(0, 1)
 if whoseMove == 1:
-    print("Первым ходит x")
+    print("Первым ходит X")
 else:
-    print("Первым ходит o")
-total = -1
-printBoard(board)
-while total < 0:
+    print("Первым ходит O")
+end = 0
+PrintBoard(board)
+while not end:
     whoseMove = (whoseMove + 1) % 2
     if whoseMove == 0:
-        print("Ход х")
+        print("Ход X")
         move = GetMove(board)
-        board[move[0]][move[1]] = "х"
+        board[move] = 1
     else:
-        print("Ход o")
+        print("Ход O")
         move = GetMove(board)
-        board[move[0]][move[1]] = "o"
-    printBoard(board)
-    total = CheckBoard(board)
+        board[move] = -1
+    PrintBoard(board)
+    end = CheckBoard(board)
 
-if total == 1:
-    print("Победил х!!!")
-elif total == 2:
-    print("Победил o!!!")
+if end == 1:
+    print("Победил X!!!")
+elif end == -1:
+    print("Победил O!!!")
 else:
     print("Ничья!!!")
