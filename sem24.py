@@ -1,6 +1,5 @@
 # 41. Создайте программу для игры в "Крестики-нолики".
-
-from random import randint
+import random
 
 EPMTY = 0
 X = 1
@@ -9,8 +8,8 @@ SYMBOLS = {EPMTY: "-", X: "X", O: "O"}
 
 X_WIN = X
 O_WIN = O
-NOT_END = 0
-DRAW = -2
+DRAW = 0
+NOT_END = -2
 
 
 def CheckBoard(brd):
@@ -29,13 +28,13 @@ def CheckBoard(brd):
         return DRAW
 
 
-def PrintBoard(brd):
+def PrintBoard(brd: list):
     print(" ".join(map(lambda i: SYMBOLS[i], brd[0:3])))
     print(" ".join(map(lambda i: SYMBOLS[i], brd[3:6])))
     print(" ".join(map(lambda i: SYMBOLS[i], brd[6:9])))
 
 
-def GetMove(brd):
+def HumanMove(brd: list):
     while True:
         try:
             m = input("Сделайте ход (строка столбец через пробел): ")
@@ -48,33 +47,72 @@ def GetMove(brd):
         else:
             return move
 
+
+def BotMove(brd: list):
+    possibleMoves = {m for m, s in enumerate(brd) if s == EPMTY}
+    firstPriority = {0, 2, 6, 8}
+    for move in possibleMoves:
+        newBrd = brd[::]
+        newBrd[move] = O
+        if CheckBoard(newBrd) == O_WIN:
+            return move
+    for move in possibleMoves:
+        newBrd = brd[::]
+        newBrd[move] = X
+        if CheckBoard(newBrd) == X_WIN:
+            return move
+    if 4 in possibleMoves:
+        return 4
+    firstPriorityEmpty = firstPriority & possibleMoves
+    for firstMove in firstPriorityEmpty:
+        newBrd = brd[::]
+        newBrd[firstMove] = O
+        for secondMove in possibleMoves - {firstMove}:
+            newBrdSecond = newBrd[::]
+            newBrdSecond[secondMove] = O
+            if CheckBoard(newBrdSecond) == O_WIN:
+                return firstMove
+    for firstMove in possibleMoves:
+        newBrd = brd[::]
+        newBrd[firstMove] = O
+        for secondMove in possibleMoves - {firstMove}:
+            newBrdSecond = newBrd[::]
+            newBrdSecond[secondMove] = O
+            if CheckBoard(newBrdSecond) == O_WIN:
+                return firstMove
+    if len(firstPriorityEmpty) !=0:
+        return random.choice(tuple(firstPriorityEmpty))
+    return random.choice(tuple(possibleMoves))
+
+
 board = [EPMTY, EPMTY, EPMTY,
          EPMTY, EPMTY, EPMTY,
          EPMTY, EPMTY, EPMTY]
 
-whoseMove = randint(0, 1)
+whoseMove = random.randint(0, 1)
 if whoseMove != X:
     print("Первым ходит X")
 else:
     print("Первым ходит O")
-end = NOT_END
+gameState = NOT_END
 PrintBoard(board)
-while not end:
+while gameState == NOT_END:
     whoseMove = (whoseMove + 1) % 2
     if whoseMove == X:
         print("Ход X")
-        move = GetMove(board)
+        move = HumanMove(board)
         board[move] = X
     else:
         print("Ход O")
-        move = GetMove(board)
+        move = BotMove(board)
         board[move] = O
     PrintBoard(board)
-    end = CheckBoard(board)
+    print("-----------------")
+    gameState = CheckBoard(board)
 
-if end == X_WIN:
+if gameState == X_WIN:
     print("Победил X!!!")
-elif end == O_WIN:
+elif gameState == O_WIN:
     print("Победил O!!!")
 else:
     print("Ничья!!!")
