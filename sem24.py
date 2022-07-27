@@ -48,48 +48,51 @@ def HumanMove(brd: list):
             return move
 
 
+def OneMoveWin(brd: list, moves: set, wMove: int) -> int:
+    for move in moves:
+        newBrd = brd[::]
+        newBrd[move] = wMove
+        if CheckBoard(newBrd) == wMove:
+            return move
+    return -1
+
+
+def TwoMoveWin(brd: list, priorityMoves: set, allMoves: set, wMove: int) -> int:
+    for firstMove in priorityMoves:
+        newBrd = brd[::]
+        newBrd[firstMove] = wMove
+        for secondMove in allMoves - {firstMove}:
+            newBrdSecond = newBrd[::]
+            newBrdSecond[secondMove] = wMove
+            if CheckBoard(newBrdSecond) == wMove:
+                return firstMove
+    return -1
+
+
 def BotMove(brd: list):
     possibleMoves = {m for m, s in enumerate(brd) if s == EPMTY}
     cornerСellsEmpty = possibleMoves & {0, 2, 6, 8}
     sideСellsEmpty = possibleMoves & {1, 3, 5, 7}
-    for move in possibleMoves:
-        newBrd = brd[::]
-        newBrd[move] = O
-        if CheckBoard(newBrd) == O_WIN:
-            return move
-    for move in possibleMoves:
-        newBrd = brd[::]
-        newBrd[move] = X
-        if CheckBoard(newBrd) == X_WIN:
-            return move
-    if 4 in possibleMoves:
-        return 4
+    center = 4
+    move = OneMoveWin(brd, possibleMoves, O)
+    if move != -1:
+        return move
+    move = OneMoveWin(brd, possibleMoves, X)
+    if move != -1:
+        return move
+    if brd[center] == EPMTY:
+        return center
     else:
         if len(cornerСellsEmpty) == 2 and ((brd[0] == X and brd[8] == X) or (brd[2] == X and brd[6] == X)):
-            for firstMove in sideСellsEmpty:
-                newBrd = brd[::]
-                newBrd[firstMove] = O
-                for secondMove in possibleMoves - {firstMove}:
-                    newBrdSecond = newBrd[::]
-                    newBrdSecond[secondMove] = O
-                    if CheckBoard(newBrdSecond) == O_WIN:
-                        return firstMove
-    for firstMove in cornerСellsEmpty:
-        newBrd = brd[::]
-        newBrd[firstMove] = O
-        for secondMove in possibleMoves - {firstMove}:
-            newBrdSecond = newBrd[::]
-            newBrdSecond[secondMove] = O
-            if CheckBoard(newBrdSecond) == O_WIN:
-                return firstMove
-    for firstMove in possibleMoves:
-        newBrd = brd[::]
-        newBrd[firstMove] = O
-        for secondMove in possibleMoves - {firstMove}:
-            newBrdSecond = newBrd[::]
-            newBrdSecond[secondMove] = O
-            if CheckBoard(newBrdSecond) == O_WIN:
-                return firstMove
+            move = TwoMoveWin(brd, sideСellsEmpty, possibleMoves, O)
+            if move != -1:
+                return move
+    move = TwoMoveWin(brd, cornerСellsEmpty, possibleMoves, O)
+    if move != -1:
+        return move
+    move = TwoMoveWin(brd, possibleMoves, possibleMoves, O)
+    if move != -1:
+        return move
     if len(cornerСellsEmpty) != 0:
         return random.choice(tuple(cornerСellsEmpty))
     return random.choice(tuple(possibleMoves))
@@ -121,8 +124,8 @@ while gameState == NOT_END:
     gameState = CheckBoard(board)
 
 if gameState == X_WIN:
-    print("Победил X!!!")
+    print("Вы победили!!!")
 elif gameState == O_WIN:
-    print("Победил O!!!")
+    print("Бот победил!!!")
 else:
     print("Ничья!!!")
