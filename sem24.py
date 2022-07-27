@@ -50,7 +50,8 @@ def HumanMove(brd: list):
 
 def BotMove(brd: list):
     possibleMoves = {m for m, s in enumerate(brd) if s == EPMTY}
-    firstPriority = {0, 2, 6, 8}
+    cornerСellsEmpty = possibleMoves & {0, 2, 6, 8}
+    sideСellsEmpty = possibleMoves & {1, 3, 5, 7}
     for move in possibleMoves:
         newBrd = brd[::]
         newBrd[move] = O
@@ -63,8 +64,17 @@ def BotMove(brd: list):
             return move
     if 4 in possibleMoves:
         return 4
-    firstPriorityEmpty = firstPriority & possibleMoves
-    for firstMove in firstPriorityEmpty:
+    else:
+        if len(cornerСellsEmpty) == 2 and ((brd[0] == X and brd[8] == X) or (brd[2] == X and brd[6] == X)):
+            for firstMove in sideСellsEmpty:
+                newBrd = brd[::]
+                newBrd[firstMove] = O
+                for secondMove in possibleMoves - {firstMove}:
+                    newBrdSecond = newBrd[::]
+                    newBrdSecond[secondMove] = O
+                    if CheckBoard(newBrdSecond) == O_WIN:
+                        return firstMove
+    for firstMove in cornerСellsEmpty:
         newBrd = brd[::]
         newBrd[firstMove] = O
         for secondMove in possibleMoves - {firstMove}:
@@ -80,8 +90,8 @@ def BotMove(brd: list):
             newBrdSecond[secondMove] = O
             if CheckBoard(newBrdSecond) == O_WIN:
                 return firstMove
-    if len(firstPriorityEmpty) !=0:
-        return random.choice(tuple(firstPriorityEmpty))
+    if len(cornerСellsEmpty) != 0:
+        return random.choice(tuple(cornerСellsEmpty))
     return random.choice(tuple(possibleMoves))
 
 
