@@ -1,6 +1,9 @@
 # 41. Создайте программу для игры в "Крестики-нолики".
 import random
 
+HUMAN = 0
+BOT = 1
+
 EPMTY = 0
 X = 1
 O = -1
@@ -69,28 +72,30 @@ def TwoMoveWin(brd: list, priorityMoves: set, allMoves: set, wMove: int) -> int:
     return -1
 
 
-def BotMove(brd: list):
+def BotMove(brd: list, wMove: int):
     possibleMoves = {m for m, s in enumerate(brd) if s == EPMTY}
+    opponent = X if wMove == O else O
     cornerСellsEmpty = possibleMoves & {0, 2, 6, 8}
     sideСellsEmpty = possibleMoves & {1, 3, 5, 7}
     center = 4
-    move = OneMoveWin(brd, possibleMoves, O)
+    move = OneMoveWin(brd, possibleMoves, wMove)
     if move != -1:
         return move
-    move = OneMoveWin(brd, possibleMoves, X)
+    move = OneMoveWin(brd, possibleMoves, opponent)
     if move != -1:
         return move
     if brd[center] == EPMTY:
         return center
     else:
-        if len(cornerСellsEmpty) == 2 and ((brd[0] == X and brd[8] == X) or (brd[2] == X and brd[6] == X)):
-            move = TwoMoveWin(brd, sideСellsEmpty, possibleMoves, O)
+        if len(cornerСellsEmpty) == 2 and ((brd[0] == opponent and brd[8] == opponent)
+                                           or (brd[2] == opponent and brd[6] == opponent)):
+            move = TwoMoveWin(brd, sideСellsEmpty, possibleMoves, wMove)
             if move != -1:
                 return move
-    move = TwoMoveWin(brd, cornerСellsEmpty, possibleMoves, O)
+    move = TwoMoveWin(brd, cornerСellsEmpty, possibleMoves, wMove)
     if move != -1:
         return move
-    move = TwoMoveWin(brd, possibleMoves, possibleMoves, O)
+    move = TwoMoveWin(brd, possibleMoves, possibleMoves, wMove)
     if move != -1:
         return move
     if len(cornerСellsEmpty) != 0:
@@ -98,34 +103,44 @@ def BotMove(brd: list):
     return random.choice(tuple(possibleMoves))
 
 
-board = [EPMTY, EPMTY, EPMTY,
-         EPMTY, EPMTY, EPMTY,
-         EPMTY, EPMTY, EPMTY]
+def TycTacToe(player1, player2):
+    board = [EPMTY, EPMTY, EPMTY,
+             EPMTY, EPMTY, EPMTY,
+             EPMTY, EPMTY, EPMTY]
 
-whoseMove = random.randint(0, 1)
-if whoseMove != X:
-    print("Первым ходит X")
-else:
-    print("Первым ходит O")
-gameState = NOT_END
-PrintBoard(board)
-while gameState == NOT_END:
-    whoseMove = (whoseMove + 1) % 2
-    if whoseMove == X:
-        print("Ход X")
-        move = HumanMove(board)
-        board[move] = X
+    whoseMove = random.randint(0, 1)
+    if whoseMove != X:
+        print("Первым ходит X")
     else:
-        print("Ход O")
-        move = BotMove(board)
-        board[move] = O
+        print("Первым ходит O")
+    gameState = NOT_END
     PrintBoard(board)
-    print("-----------------")
-    gameState = CheckBoard(board)
+    while gameState == NOT_END:
+        whoseMove = (whoseMove + 1) % 2
+        if whoseMove == X:
+            print("Ход X")
+            if player1 == HUMAN:
+                move = HumanMove(board)
+            else:
+                move = BotMove(board, X)
+            board[move] = X
+        else:
+            print("Ход O")
+            if player2 == HUMAN:
+                move = HumanMove(board)
+            else:
+                move = BotMove(board, O)
+            board[move] = O
+        PrintBoard(board)
+        print("-----------------")
+        gameState = CheckBoard(board)
+    return gameState
 
-if gameState == X_WIN:
-    print("Вы победили!!!")
-elif gameState == O_WIN:
-    print("Бот победил!!!")
+
+gameRusult = TycTacToe(BOT, BOT)
+if gameRusult == X_WIN:
+    print("Победил X!!!")
+elif gameRusult == O_WIN:
+    print("Победил O!!!")
 else:
     print("Ничья!!!")
